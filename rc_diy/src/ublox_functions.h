@@ -19,7 +19,7 @@ void ublox_noNMEA();
 void ublox_setBaudrate();
 
 // U-blox receiver change frequency to 10Hz
-void ublox_changeFrequency();
+void ublox_changeFrequency(uint8_t hz);
 
 // U-blox receiver enable NAV-PVT messages
 void ublox_enableNavPvt();

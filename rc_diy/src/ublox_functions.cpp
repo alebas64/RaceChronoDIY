@@ -128,24 +128,79 @@ void ublox_setBaudrate()
 }
 
 // U-blox receiver change frequency to 10Hz
-void ublox_changeFrequency()
+void ublox_changeFrequency(uint8_t hz)
 {
-  uint8_t packet[] = {
-      0xB5, // sync 1
-      0x62, // sync 2
-      0x06, // class
-      0x08, // id
-      0x06, // length
-      0x00, // length
-      0x64, // payload
-      0x00, // payload
-      0x01, // payload
-      0x00, // payload
-      0x01, // payload
-      0x00, // payload
-      0x7A, // CK_A
-      0x12, // CK_B
-  };
+    uint8_t packet[14];
+    switch(hz){
+        default:
+        case 1:
+            packet[0]=0xB5;//sync 1
+            packet[1]=0x62; //sync 2
+            packet[2]=0x06; //class
+            packet[3]=0x08; //id
+            packet[4]=0x06; //length
+            packet[5]=0x00; //length
+            packet[6]=0xE8; //payload
+            packet[7]=0x03; //payload
+            packet[8]=0x01; //payload
+            packet[9]=0x00; //payload
+            packet[10]=0x00; //payload
+            packet[11]=0x00; //payload
+            packet[12]=0x00; //CK_A
+            packet[13]=0x37; //CK_B
+            break;
+
+        case 10:
+            packet[0]=0xB5;//sync 1
+            packet[1]=0x62; //sync 2
+            packet[2]=0x06; //class
+            packet[3]=0x08; //id
+            packet[4]=0x06; //length
+            packet[5]=0x00; //length
+            packet[6]=0x64; //payload
+            packet[7]=0x00; //payload
+            packet[8]=0x01; //payload
+            packet[9]=0x00; //payload
+            packet[10]=0x01; //payload
+            packet[11]=0x00; //payload
+            packet[12]=0x7A; //CK_A
+            packet[13]=0x12; //CK_B
+        break;
+
+        case 16:
+            packet[0]=0xB5; //sync 1
+            packet[1]=0x62; //sync 2
+            packet[2]=0x06; //class
+            packet[3]=0x08; //id
+            packet[4]=0x06; //length
+            packet[5]=0x00; //length
+            packet[6]=0x3D; //payload
+            packet[7]=0x00; //payload
+            packet[8]=0x01; //payload
+            packet[9]=0x00; //payload
+            packet[10]=0x01; //payload
+            packet[11]=0x00; //payload
+            packet[12]=0x53; //CK_A
+            packet[13]=0x28; //CK_B
+            break;
+
+        case 20:
+            packet[0]=0xB5; //sync 1
+            packet[1]=0x62; //sync 2
+            packet[2]=0x06; //class
+            packet[3]=0x08; //id
+            packet[4]=0x06; //length
+            packet[5]=0x00; //length
+            packet[6]=0x32; //payload
+            packet[7]=0x00; //payload
+            packet[8]=0x01; //payload
+            packet[9]=0x00; //payload
+            packet[10]=0x01; //payload
+            packet[11]=0x00; //payload
+            packet[12]=0x48; //CK_A
+            packet[13]=0xE6; //CK_B
+            break;
+    }
   ublox_sendPacket(packet, sizeof(packet));
 }
 

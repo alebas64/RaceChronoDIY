@@ -169,6 +169,7 @@ void loop()
     // Update display or other periodic tasks
     Serial.printf("[I] battery: %.2fV\n", 0.0);
     Serial.printf("[i] gps speed: %.2f km/h\n", (_validPacket.pvt.gSpeed * 0.0036));
+    Serial.printf("[I] gps valid: %d\n", _validPacket.pvt.valid);
   }
 
   if (deviceConnected)
