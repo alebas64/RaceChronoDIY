@@ -1,11 +1,5 @@
-// Library for AXP20x Power Management
-#include <axp20x.h>
-
-// Library for Bluetooth Low Energy
-#include <BLEDevice.h>
-#include <BLEUtils.h>
-#include <BLEServer.h>
-#include <BLE2902.h>
+#include "BoardSetup.h"
+#include "ublox_defines.h"
 
 #define RACECHRONO_UUID "00001ff8-0000-1000-8000-00805f9b34fb" // RaceChrono service UUID
 #define UBX_ID_NAV_DOP 0x04
@@ -31,8 +25,6 @@ uint8_t gpsSyncBits = 0;
 
 int16_t msg_length;
 
-AXP20X_Class axp;
-
 HardwareSerial GPSSerial1(1);
 
 BLEServer *BLE_server = NULL;
@@ -41,67 +33,6 @@ BLECharacteristic *BLE_GPS_Time_Characteristic = NULL; // RaceChrono GPS Time ch
 
 String device_name = "RC_DIY_" + String((uint16_t)((uint64_t)ESP.getEfuseMac() >> 32));
 
-struct ublox
-{
-  uint8_t message_class;
-  uint8_t message_id;
-  uint16_t payload_length;
-};
-
-struct ublox_NAV_DOP : ublox
-{
-  uint32_t iTOW;
-  uint16_t gDOP;
-  uint16_t pDOP;
-  uint16_t tDOP;
-  uint16_t vDOP;
-  uint16_t hDOP;
-  uint16_t nDOP;
-  uint16_t eDOP;
-};
-
-struct ublox_NAV_PVT : ublox
-{
-  uint32_t iTOW;
-  uint16_t year;
-  uint8_t month;
-  uint8_t day;
-  uint8_t hour;
-  uint8_t min;
-  uint8_t sec;
-  uint8_t valid;
-  uint32_t tAcc;
-  int32_t nano;
-  uint8_t fixType;
-  uint8_t flags;
-  uint8_t flags2;
-  uint8_t numSV;
-  int32_t lon;
-  int32_t lat;
-  int32_t height;
-  int32_t hMSL;
-  uint32_t hAcc;
-  uint32_t vAcc;
-  int32_t velN;
-  int32_t velE;
-  int32_t velD;
-  int32_t gSpeed;
-  int32_t headMot;
-  uint32_t sAcc;
-  uint32_t headAcc;
-  uint16_t pDOP;
-  uint16_t reserved2;
-  uint32_t reserved3;
-  int32_t headVeh;
-  int16_t magDec;
-  uint16_t magAcc;
-};
-
-union
-{
-  ublox_NAV_DOP dop;
-  ublox_NAV_PVT pvt;
-} _validPacket;
 
 // Checksum calculation for UBLOX module
 void _calcChecksum(uint8_t *CK, uint8_t *payload, uint16_t length)
@@ -365,37 +296,17 @@ void configBLE()
   BLEDevice::startAdvertising();
 }
 
-// AXP power management configuration
-void configAXP()
-{
-  Wire.begin(21, 22);
-  if (!axp.begin(Wire, AXP192_SLAVE_ADDRESS))
-  {
-    Serial.println("[I] AXP192 Begin PASS");
-  }
-  else
-  {
-    Serial.println("[I] AXP192 Begin FAIL");
-  }
-  axp.setDCDC1Voltage(3300);                   // ESP32 3v3
-  axp.setLDO3Voltage(3300);                    // GPS   3v3
-  axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON); // ESP32 ON
-  axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // GPS   ON
-  axp.setPowerOutPut(AXP192_LDO2, AXP202_OFF); // LORA
-  axp.setPowerOutPut(AXP192_EXTEN, AXP202_OFF);
-}
-
 // Setup UART/BLE/GPS/AXP
 void setup()
 {
   // ESP32 UART - 115200
   Serial.begin(115200);
+  setupBoards();
   configBLE();
-  configAXP();
   configGPS();
 
   // LED blink fast when ready
-  axp.setChgLEDMode(AXP20X_LED_BLINK_4HZ);
+  //axp.setChgLEDMode(AXP20X_LED_BLINK_4HZ);
 }
 
 // U-blox read incoming messages
@@ -562,13 +473,13 @@ void loop()
   {
     delay(500);
     BLE_server->startAdvertising();
-    axp.setChgLEDMode(AXP20X_LED_BLINK_4HZ);
+    //axp.setChgLEDMode(AXP20X_LED_BLINK_4HZ);
     Serial.println("[I] Bluetooth device discoverable");
     oldDeviceConnected = deviceConnected;
   }
   if (deviceConnected && !oldDeviceConnected)
   {
-    axp.setChgLEDMode(AXP20X_LED_BLINK_1HZ);
+    //axp.setChgLEDMode(AXP20X_LED_BLINK_1HZ);
     oldDeviceConnected = deviceConnected;
   }
 }
