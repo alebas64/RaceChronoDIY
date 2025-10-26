@@ -16,7 +16,7 @@
 #endif
 
 #include <Arduino.h>
-#include <SPI.h>
+//#include <SPI.h>
 #include <Wire.h>
 
 // Library for AXP20x Power Management

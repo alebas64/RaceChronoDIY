@@ -398,7 +398,7 @@ void setupBoards(bool disable_u8g2 )
     Serial.println("setupBoards");
 
     getChipInfo();
-    SPI.begin(RADIO_SCLK_PIN, RADIO_MISO_PIN, RADIO_MOSI_PIN);
+    //SPI.begin(RADIO_SCLK_PIN, RADIO_MISO_PIN, RADIO_MOSI_PIN);
 
 #ifdef BOARD_LED
     /*
@@ -438,10 +438,13 @@ void setupBoards(bool disable_u8g2 )
     delay(100);
     SerialGPS.begin(115200, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN);
     Serial.println("[I] Changing frequency to 10Hz");
-    ublox_changeFrequency(1);
+    ublox_changeFrequency(10);
+    delay(100);
     Serial.println("[I] Enabling NAV-PVT / NAV-DOP messages");
     ublox_enableNavPvt();
+    delay(100);
     ublox_enableNavDop();
+    delay(100);
     Serial.println("[I] U-BLOX configuration finished");
     deviceOnline |= GPS_ONLINE;
 

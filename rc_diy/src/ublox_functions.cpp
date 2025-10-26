@@ -208,6 +208,7 @@ void ublox_changeFrequency(uint8_t hz)
 void ublox_enableNavPvt()
 {
   // CFG-MSG packet.
+  /*
   uint8_t packet[] = {
       0xB5, // sync 1
       0x62, // sync 2
@@ -226,7 +227,10 @@ void ublox_enableNavPvt()
       0x1B, // CK_A
       0xEC, // CK_B
   };
-  ublox_sendPacket(packet, sizeof(packet));
+  */
+ uint8_t cfg_msg_navpvt[] = {0xB5,0x62,0x06,0x01,0x03,0x00,0x01,0x07,0x01,0x13,0x51};
+    
+  ublox_sendPacket(cfg_msg_navpvt, sizeof(cfg_msg_navpvt));
 }
 
 // U-blox receiver enable NAV-DOP messages
@@ -251,6 +255,8 @@ void ublox_enableNavDop()
       0x18, // CK_A
       0xD7, // CK_B
   };
-  ublox_sendPacket(packet, sizeof(packet));
+   uint8_t cfg_msg_navdop[] = {0xB5,0x62,0x06,0x01,0x03,0x00,0x01,0x04,0x01,0x10,0x4B};
+    
+  ublox_sendPacket(cfg_msg_navdop, sizeof(cfg_msg_navdop));
 }
 
