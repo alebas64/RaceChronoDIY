@@ -446,7 +446,7 @@ void setupBoards(bool disable_u8g2 )
     deviceOnline |= GPS_ONLINE;
 
     Serial.println("init done . ");
-    
+
     printResult(false);
 }
 

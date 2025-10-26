@@ -5,11 +5,6 @@
 #define UBX_ID_NAV_DOP 0x04
 #define UBX_ID_NAV_PVT 0x07
 
-#define GPS_RX 34 // RX on GPS module
-#define GPS_TX 12 // TX on GPS module
-
-using namespace std;
-
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 
@@ -24,8 +19,6 @@ uint8_t rc_data[20];
 uint8_t gpsSyncBits = 0;
 
 int16_t msg_length; 
-
-HardwareSerial GPSSerial1(1);
 
 BLEServer *BLE_server = NULL;
 BLECharacteristic *BLE_GPS_Main_Characteristic = NULL; // RaceChrono GPS Main characteristic UUID 0x03
@@ -92,9 +85,9 @@ bool read_ublox()
 {
   uint8_t _checksum[2];
   const uint8_t _ubxHeader[2] = {0xB5, 0x62};
-  while (GPSSerial1.available())
+  while (SerialGPS.available())
   {
-    _byte = GPSSerial1.read();
+    _byte = SerialGPS.read();
     if (_parserState < 2)
     {
       if (_byte == _ubxHeader[_parserState])
@@ -165,15 +158,27 @@ bool read_ublox()
   return false;
 }
 
+uint32_t oled_millis_update = 0;
+const uint32_t oled_update_interval = 1000;
+
 // Main loop
 void loop()
 {
+  if(millis() - oled_millis_update > oled_update_interval) {
+    oled_millis_update = millis();
+    // Update display or other periodic tasks
+    Serial.printf("[I] battery: %.2fV\n", 0.0);
+    Serial.printf("[i] gps speed: %.2f km/h\n", (_validPacket.pvt.gSpeed * 0.0036));
+  }
+
   if (deviceConnected)
   {
     if (read_ublox())
     {
+      //Serial.println("[I] Valid UBLOX packet received!");
       if (_validPacket.pvt.message_id == UBX_ID_NAV_PVT)
       {
+        //Serial.println("[I] Processing NAV-PVT packet...");
         dateAndHour = (_validPacket.pvt.year - 2000) * 8928 + (_validPacket.pvt.month - 1) * 744 + (_validPacket.pvt.day - 1) * 24 + _validPacket.pvt.hour;
 
         /*

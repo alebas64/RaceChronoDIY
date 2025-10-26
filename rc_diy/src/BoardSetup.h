@@ -12,10 +12,6 @@
 
 #include "utilities.h"
 
-#ifdef HAS_SDCARD
-#include <SD.h>
-#endif
-
 #if defined(ARDUINO_ARCH_ESP32)  
 #endif
 
@@ -54,10 +50,6 @@
 #define DISPLAY_ADDR            0x3C
 #endif
 
-#ifndef LORA_FREQ_CONFIG
-#define LORA_FREQ_CONFIG        915.0
-#endif
-
 enum {
     POWERMANAGE_ONLINE  = _BV(0),
     DISPLAY_ONLINE      = _BV(1),
@@ -87,14 +79,9 @@ typedef struct {
     uint8_t         flashSpeed;
 } DevInfo_t;
 
-
 void setupBoards(bool disable_u8g2 = false);
 
-bool beginSDCard();
-
 bool beginDisplay();
-
-void disablePeripherals();
 
 bool beginPower();
 
@@ -109,8 +96,6 @@ bool beginGPS();
 bool recoveryGPS();
 
 void loopPMU(void (*pressed_cb)(void));
-
-void scanWiFi();
 
 #ifdef HAS_PMU
 extern XPowersLibInterface *PMU;
