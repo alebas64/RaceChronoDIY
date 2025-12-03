@@ -438,7 +438,7 @@ void setupBoards(bool disable_u8g2 )
     delay(100);
     SerialGPS.begin(115200, SERIAL_8N1, GPS_RX_PIN, GPS_TX_PIN);
     Serial.println("[I] Changing frequency to 10Hz");
-    ublox_changeFrequency(10);
+    ublox_changeFrequency(16);
     delay(100);
     Serial.println("[I] Enabling NAV-PVT / NAV-DOP messages");
     ublox_enableNavPvt();
