@@ -44,6 +44,7 @@
 #define BUTTON_PIN                  38
 
 #define GPS_BAUD_RATE               9600
+#define GPS_BAUD_RATE_SPEED       115200
 #define HAS_GPS
 #define HAS_DISPLAY                 //Optional, bring your own board, no OLED !!
 #define HAS_PMU
