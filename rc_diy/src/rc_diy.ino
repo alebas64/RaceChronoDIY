@@ -26,6 +26,13 @@ BLECharacteristic *BLE_GPS_Time_Characteristic = NULL; // RaceChrono GPS Time ch
 
 String device_name = "RC_DIY_" + String((uint16_t)((uint64_t)ESP.getEfuseMac() >> 32));
 
+void esp32_restart(){
+    //100 ms to wait before complete restart
+    esp_sleep_enable_timer_wakeup(2000);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
+    esp_deep_sleep_start();
+}
+
 // Bluetooth Low Energy BLEServerCallbacks
 class ServerCallbacks : public BLEServerCallbacks
 {
@@ -159,6 +166,8 @@ bool read_ublox()
 }
 
 uint32_t oled_millis_update = 0;
+uint32_t millis_button_debounce = 0;
+bool first_time_debounce=true;
 const uint32_t oled_update_interval = 1000;
 
 // Main loop
@@ -167,11 +176,27 @@ void loop()
   if(millis() - oled_millis_update > oled_update_interval) {
     oled_millis_update = millis();
     // Update display or other periodic tasks
-    Serial.printf("[I] battery: %.2fV\n", 0.0);
-    Serial.printf("[i] gps speed: %.2f km/h\n", (_validPacket.pvt.gSpeed * 0.0036));
+    Serial.printf("[I] battery %%: %3d%%\n", PMU->getBatteryPercent());
+    Serial.printf("[I] battery V: %4d mV\n", PMU->getBattVoltage());
+    Serial.printf("[i] gps speed: %3.2f km/h\n", (_validPacket.pvt.gSpeed * 0.0036));
     Serial.printf("[I] gps valid: %d\n", _validPacket.pvt.valid);
   }
 
+  //Serial.print("button:");Serial.println(digitalRead(BUTTON_PIN));
+  if(digitalRead(BUTTON_PIN)==LOW){
+    if(first_time_debounce==true){
+      first_time_debounce=false;
+      millis_button_debounce=millis();
+    }else{
+      if(millis()-millis_button_debounce>300){
+        esp32_restart();
+        //Serial.println("AAAAAAAAAAAA");
+      }
+    }
+  }else{
+    first_time_debounce=true;
+  }
+   
   if (deviceConnected)
   {
     if (read_ublox())

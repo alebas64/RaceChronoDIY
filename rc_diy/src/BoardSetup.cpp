@@ -415,6 +415,8 @@ void setupBoards(bool disable_u8g2 )
     digitalWrite(BOARD_LED, LED_ON);
 #endif
 
+    
+    pinMode(BUTTON_PIN,INPUT_PULLUP);
     beginPower();
 
     // Perform an I2C scan after power-on operation
