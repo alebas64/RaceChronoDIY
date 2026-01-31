@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "racechronoDIY"
+		},
+		{
+			"path": "../docs/",
+			"name": "docs"
+		}
+	]
+}
