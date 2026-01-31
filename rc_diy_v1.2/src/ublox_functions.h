@@ -31,7 +31,5 @@ void ublox_enableNavPvt();
 // U-blox receiver enable NAV-DOP messages
 void ublox_enableNavDop();
 
-// U-blox read incoming messages
-bool read_ublox();
 
 #endif

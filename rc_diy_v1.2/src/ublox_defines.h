@@ -10,6 +10,7 @@ struct ublox
   uint16_t payload_length;
 };
 
+//144 bit
 struct ublox_NAV_DOP : ublox
 {
   uint32_t iTOW;
@@ -22,6 +23,7 @@ struct ublox_NAV_DOP : ublox
   uint16_t eDOP;
 };
 
+//736 bit
 struct ublox_NAV_PVT : ublox
 {
   uint32_t iTOW;
@@ -59,10 +61,17 @@ struct ublox_NAV_PVT : ublox
   uint16_t magAcc;
 };
 
+//prob 880 bit = 110 byte
 union
 {
   ublox_NAV_DOP dop;
   ublox_NAV_PVT pvt;
 } _validPacket;
 
+/*
+typedef struct{
+  ublox_NAV_DOP dop;
+  ublox_NAV_PVT pvt;
+}valid_packet_t;
+*/
 #endif // UBLOX_DEFINES_H
