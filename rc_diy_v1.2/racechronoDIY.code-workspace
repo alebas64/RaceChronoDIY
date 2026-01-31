@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "tbeam_v1.2"
+		},
+		{
+			"path": "../docs/",
+			"name": "docs"
+		}
+	]
+}
