@@ -1,9 +1,6 @@
 #include "BoardSetup.h"
-#include "ublox_defines.h"
 
 #define RACECHRONO_UUID "00001ff8-0000-1000-8000-00805f9b34fb" // RaceChrono service UUID
-#define UBX_ID_NAV_DOP 0x04
-#define UBX_ID_NAV_PVT 0x07
 
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
@@ -12,26 +9,19 @@ int gpsPreviousDateAndHour = 0;
 int dateAndHour;
 int timeSinceHourStart;
 
-uint8_t _byte;
-uint8_t _parserState;
-uint8_t _tempPacket[255];
+//uint8_t _byte;
+//uint8_t _parserState;
+//uint8_t _tempPacket[255];
 uint8_t rc_data[20];
 uint8_t gpsSyncBits = 0;
 
-int16_t msg_length; 
+//int16_t msg_length; 
 
 BLEServer *BLE_server = NULL;
 BLECharacteristic *BLE_GPS_Main_Characteristic = NULL; // RaceChrono GPS Main characteristic UUID 0x03
 BLECharacteristic *BLE_GPS_Time_Characteristic = NULL; // RaceChrono GPS Time characteristic UUID 0x04
 
 String device_name = "RC_DIY_" + String((uint16_t)((uint64_t)ESP.getEfuseMac() >> 32));
-
-void esp32_restart(){
-    //100 ms to wait before complete restart
-    esp_sleep_enable_timer_wakeup(2000);
-    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
-    esp_deep_sleep_start();
-}
 
 // Bluetooth Low Energy BLEServerCallbacks
 class ServerCallbacks : public BLEServerCallbacks
@@ -85,84 +75,6 @@ void setup()
 
   // LED blink fast when ready
   //axp.setChgLEDMode(AXP20X_LED_BLINK_4HZ);
-}
-
-// U-blox read incoming messages
-bool read_ublox()
-{
-  uint8_t _checksum[2];
-  const uint8_t _ubxHeader[2] = {0xB5, 0x62};
-  while (SerialGPS.available())
-  {
-    _byte = SerialGPS.read();
-    if (_parserState < 2)
-    {
-      if (_byte == _ubxHeader[_parserState])
-      {
-        _parserState++;
-      }
-      else
-      {
-        _parserState = 0;
-      }
-    }
-    else
-    {
-      if (_parserState == 2)
-      {
-        if (_byte == 1)
-        { // NAV
-          msg_length = 2;
-        }
-      }
-      if (_parserState == 3)
-      {
-        if (_byte == UBX_ID_NAV_DOP)
-        {
-          msg_length = 22; // 18+4
-        }
-        else if (_byte == UBX_ID_NAV_PVT)
-        {
-          msg_length = 96; // 92+4
-        }
-        else
-        {
-          msg_length = 0;
-        }
-      }
-      if ((_parserState - 2) < msg_length)
-      {
-        *((uint8_t *)&_tempPacket + _parserState - 2) = _byte;
-      }
-      _parserState++;
-      // compute checksum
-      if ((_parserState - 2) == msg_length)
-      {
-        _calcChecksum(_checksum, ((uint8_t *)&_tempPacket), msg_length);
-      }
-      else if ((_parserState - 2) == (msg_length + 1))
-      {
-        if (_byte != _checksum[0])
-        {
-          _parserState = 0;
-        }
-      }
-      else if ((_parserState - 2) == (msg_length + 2))
-      {
-        _parserState = 0;
-        if (_byte == _checksum[1])
-        {
-          memcpy(&_validPacket, &_tempPacket, sizeof(_validPacket));
-          return true;
-        }
-      }
-      else if (_parserState > (msg_length + 4))
-      {
-        _parserState = 0;
-      }
-    }
-  }
-  return false;
 }
 
 uint32_t oled_millis_update = 0;

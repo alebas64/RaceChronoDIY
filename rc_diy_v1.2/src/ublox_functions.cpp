@@ -1,5 +1,11 @@
 #include "ublox_functions.h"
 
+//support variables
+uint8_t _byte;
+uint8_t _parserState;
+uint8_t _tempPacket[255];
+int16_t msg_length;
+
 // Checksum calculation for UBLOX module
 void _calcChecksum(uint8_t *CK, uint8_t *payload, uint16_t length)
 {
@@ -260,3 +266,79 @@ void ublox_enableNavDop()
   ublox_sendPacket(cfg_msg_navdop, sizeof(cfg_msg_navdop));
 }
 
+// U-blox read incoming messages
+bool read_ublox(){
+  uint8_t _checksum[2];
+  const uint8_t _ubxHeader[2] = {0xB5, 0x62};
+  while (SerialGPS.available())
+  {
+    _byte = SerialGPS.read();
+    if (_parserState < 2)
+    {
+      if (_byte == _ubxHeader[_parserState])
+      {
+        _parserState++;
+      }
+      else
+      {
+        _parserState = 0;
+      }
+    }
+    else
+    {
+      if (_parserState == 2)
+      {
+        if (_byte == 1)
+        { // NAV
+          msg_length = 2;
+        }
+      }
+      if (_parserState == 3)
+      {
+        if (_byte == UBX_ID_NAV_DOP)
+        {
+          msg_length = 22; // 18+4
+        }
+        else if (_byte == UBX_ID_NAV_PVT)
+        {
+          msg_length = 96; // 92+4
+        }
+        else
+        {
+          msg_length = 0;
+        }
+      }
+      if ((_parserState - 2) < msg_length)
+      {
+        *((uint8_t *)&_tempPacket + _parserState - 2) = _byte;
+      }
+      _parserState++;
+      // compute checksum
+      if ((_parserState - 2) == msg_length)
+      {
+        _calcChecksum(_checksum, ((uint8_t *)&_tempPacket), msg_length);
+      }
+      else if ((_parserState - 2) == (msg_length + 1))
+      {
+        if (_byte != _checksum[0])
+        {
+          _parserState = 0;
+        }
+      }
+      else if ((_parserState - 2) == (msg_length + 2))
+      {
+        _parserState = 0;
+        if (_byte == _checksum[1])
+        {
+          memcpy(&_validPacket, &_tempPacket, sizeof(_validPacket));
+          return true;
+        }
+      }
+      else if (_parserState > (msg_length + 4))
+      {
+        _parserState = 0;
+      }
+    }
+  }
+  return false;
+}

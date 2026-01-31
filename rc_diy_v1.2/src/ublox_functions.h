@@ -2,6 +2,10 @@
 #define UBLOX_FUNCTIONS_H
 
 #include "BoardSetup.h"
+#include "ublox_defines.h"
+
+#define UBX_ID_NAV_DOP 0x04
+#define UBX_ID_NAV_PVT 0x07
 
 // Checksum calculation for UBLOX module
 void _calcChecksum(uint8_t *CK, uint8_t *payload, uint16_t length);

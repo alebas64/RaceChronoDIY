@@ -33,6 +33,7 @@
 
 //gps functions
 #include "ublox_functions.h"
+#include "ublox_defines.h"
 
 #ifndef DISPLAY_MODEL
 #define DISPLAY_MODEL           U8G2_SSD1306_128X64_NONAME_F_HW_I2C
@@ -96,6 +97,8 @@ bool beginGPS();
 bool recoveryGPS();
 
 void loopPMU(void (*pressed_cb)(void));
+
+void esp32_restart();
 
 #ifdef HAS_PMU
 extern XPowersLibInterface *PMU;

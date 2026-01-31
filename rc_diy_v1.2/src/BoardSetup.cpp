@@ -859,5 +859,12 @@ static void enable_slow_clock()
     deviceOnline |= OSC32768_ONLINE;
 }
 
+void esp32_restart(){
+    //100 ms to wait before complete restart
+    esp_sleep_enable_timer_wakeup(2000);
+    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
+    esp_deep_sleep_start();
+}
+
 #endif /*ARDUINO_ARCH_ESP32*/
 

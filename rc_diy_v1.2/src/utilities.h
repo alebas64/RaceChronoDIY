@@ -8,9 +8,6 @@
  */
 #pragma once
 
- #define T_BEAM_SX1276
-
-
 #define UNUSED_PIN                   (0)
 
 #define GPS_RX_PIN                  34
