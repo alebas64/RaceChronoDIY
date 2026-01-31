@@ -81,17 +81,18 @@ uint32_t oled_millis_update = 0;
 uint32_t millis_button_debounce = 0;
 bool first_time_debounce=true;
 const uint32_t oled_update_interval = 1000;
-
+oled_variables_show_t oled_variables_show;
 // Main loop
 void loop()
 {
   if(millis() - oled_millis_update > oled_update_interval) {
     oled_millis_update = millis();
+    oled_variables_show.battery_percent = PMU->getBatteryPercent();
+    oled_variables_show.battery_voltage = PMU->getBattVoltage();
+    oled_variables_show.gps_speed = (_validPacket.pvt.gSpeed * 0.0036);
+    oled_variables_show.gps_valid = _validPacket.pvt.valid;
     // Update display or other periodic tasks
-    Serial.printf("[I] battery %%: %3d%%\n", PMU->getBatteryPercent());
-    Serial.printf("[I] battery V: %4d mV\n", PMU->getBattVoltage());
-    Serial.printf("[i] gps speed: %3.2f km/h\n", (_validPacket.pvt.gSpeed * 0.0036));
-    Serial.printf("[I] gps valid: %d\n", _validPacket.pvt.valid);
+    printOled(oled_variables_show);
   }
 
   //Serial.print("button:");Serial.println(digitalRead(BUTTON_PIN));

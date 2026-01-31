@@ -83,6 +83,13 @@ typedef struct {
 void setupBoards(bool disable_u8g2 = false);
 
 bool beginDisplay();
+typedef struct{
+    int battery_percent;
+    int battery_voltage;
+    float gps_speed;
+    uint8_t gps_valid;
+}oled_variables_show_t;
+void printOled(oled_variables_show_t);
 
 bool beginPower();
 
@@ -95,6 +102,8 @@ void scanDevices(TwoWire *w);
 bool beginGPS();
 
 bool recoveryGPS();
+
+void restartGPS();
 
 void loopPMU(void (*pressed_cb)(void));
 

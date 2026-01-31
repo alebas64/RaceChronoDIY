@@ -31,8 +31,7 @@ static void setPmuFlag()
 static void enable_slow_clock();
 
 
-bool beginPower()
-{
+bool beginPower(){
 #ifdef HAS_PMU
     if (!PMU) {
         PMU = new XPowersAXP2101(PMU_WIRE_PORT);
@@ -295,6 +294,36 @@ bool beginDisplay()
     return false;
 }
 
+void printOled(oled_variables_show_t data){
+
+    u8g2->clearBuffer();
+    //u8g2->setFont(u8g2_font_NokiaLargeBold_tf );
+    //uint16_t str_w =  u8g2->getStrWidth(BOARD_VARIANT_NAME);
+    //u8g2->drawStr((u8g2->getWidth() - str_w) / 2, 16, BOARD_VARIANT_NAME);
+    //u8g2->drawHLine(5, 21, u8g2->getWidth() - 5);
+
+    u8g2->setFont(u8g2_font_ncenB08_tr);
+    u8g2->setCursor(0, 20);
+    u8g2->printf("Battery: %d%%",data.battery_percent);
+
+    u8g2->setCursor(0, 30);
+    u8g2->printf("Battery: %dmV",data.battery_voltage);
+
+    u8g2->setCursor(0, 40);
+    u8g2->printf("GpsSpeed: %3.2f",data.gps_speed);
+
+    u8g2->setCursor(0, 50);
+    u8g2->printf("GpsValid: %d",data.gps_valid);
+    u8g2->sendBuffer();
+
+    //this down will never be showed
+    return;
+    Serial.printf("[I] battery %%: %3d%%\n", data.battery_percent);
+    Serial.printf("[I] battery V: %4d mV\n", data.battery_voltage);
+    Serial.printf("[i] gps speed: %3.2f km/h\n", data.gps_speed);
+    Serial.printf("[I] gps valid: %d\n", data.gps_valid);
+}
+
 void printWakeupReason()
 {
 #ifdef ARDUINO_ARCH_ESP32
@@ -330,8 +359,7 @@ void printWakeupReason()
 }
 
 
-void getChipInfo()
-{
+void getChipInfo(){
 
     Serial.println("-----------------------------------");
 
@@ -389,9 +417,7 @@ void getChipInfo()
 
 
 
-void setupBoards(bool disable_u8g2 )
-{
-    Serial.begin(115200);
+void setupBoards(bool disable_u8g2 ){
 
     // while (!Serial);
 
@@ -448,6 +474,8 @@ void setupBoards(bool disable_u8g2 )
     ublox_enableNavDop();
     delay(100);
     Serial.println("[I] U-BLOX configuration finished");
+    //restartGPS();
+    //Serial.println("[I] U-BLOX rebooted with new config");
     deviceOnline |= GPS_ONLINE;
 
     Serial.println("init done . ");
@@ -752,6 +780,13 @@ bool recoveryGPS()
 
 #endif
 
+void restartGPS(){
+    PMU->disablePowerOutput(XPOWERS_ALDO3);
+    delay(500);
+    PMU->setPowerChannelVoltage(XPOWERS_ALDO3, 3300);
+    PMU->enablePowerOutput(XPOWERS_ALDO3);
+    delay(1000);
+}
 
 #if defined(ARDUINO_ARCH_ESP32)
 
